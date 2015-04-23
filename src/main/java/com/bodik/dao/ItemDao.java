@@ -3,7 +3,6 @@ package com.bodik.dao;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.TableName;
@@ -16,20 +15,19 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 
-import com.bodik.model.ConnectionToHBase;
 import com.bodik.model.Item;
+import com.bodik.service.ConnectionToHBase;
 
 public class ItemDao {
 
-	Configuration config;
-	Table tables = null;
+	private Table tables = null;
+	private final String TABLE_NAME = "tableHBaseSales";
 
 	public ItemDao() {
-		ConnectionToHBase conn = new ConnectionToHBase();
-		config = conn.getConf();
 		try {
-			Connection connection = ConnectionFactory.createConnection(config);
-			tables = connection.getTable(TableName.valueOf(conn.getTable()));
+			Connection connection = ConnectionFactory
+					.createConnection(ConnectionToHBase.getConf());
+			tables = connection.getTable(TableName.valueOf(TABLE_NAME));
 		} catch (IOException e) {
 			Logger.getLogger(ItemDao.class).error(
 					"Could not connect to the table!", e);
@@ -38,22 +36,20 @@ public class ItemDao {
 
 	public ArrayList<Item> getAll() {
 		ArrayList<Item> rows = new ArrayList<Item>();
-		ResultScanner scanner = null;
 		try {
 			Scan s = new Scan();
 			s.addColumn(Bytes.toBytes("data"), Bytes.toBytes("City"));
 			s.addColumn(Bytes.toBytes("data"), Bytes.toBytes("Price"));
-			scanner = tables.getScanner(s);
+			ResultScanner scanner = tables.getScanner(s);
 			for (Result rr : scanner) {
 				rows.add(new Item(Bytes.toString(rr.getValue(
 						Bytes.toBytes("data"), Bytes.toBytes("City"))), Bytes
 						.toString(rr.getValue(Bytes.toBytes("data"),
 								Bytes.toBytes("Price"))), getMaxTimestamp(rr)));
 			}
+			scanner.close();
 		} catch (IOException e) {
 			Logger.getLogger(ItemDao.class).error("Failed to extract data!", e);
-		} finally {
-			scanner.close();
 		}
 		return rows;
 	}
