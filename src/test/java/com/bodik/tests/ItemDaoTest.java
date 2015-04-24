@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-
 import java.io.InputStreamReader;
 
 import org.jboss.resteasy.client.ClientRequest;
@@ -24,12 +23,14 @@ public class ItemDaoTest {
 
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					new ByteArrayInputStream(response.getEntity().getBytes())));
-			String output;
-			System.out.println("Request - getAll: Status: "
+			String temp;
+			String res = "";
+			System.out.println("Request - getById: Status: "
 					+ response.getStatus() + "; Output ->");
-			while ((output = br.readLine()) != null) {
-				System.out.println(output);
+			while ((temp = br.readLine()) != null) {
+				res += temp;
 			}
+			System.out.println(res);
 
 			assertTrue(response.getStatus() == 200);
 		} catch (Exception e) {
@@ -41,20 +42,24 @@ public class ItemDaoTest {
 	@Test
 	public void testGetById() {
 		try {
-			ClientRequest request = new ClientRequest(ROOT_URL + "1230774660");
+			ClientRequest request = new ClientRequest(ROOT_URL + "1230774660s");
 			request.accept("application/json");
 			ClientResponse<String> response = request.get(String.class);
 
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					new ByteArrayInputStream(response.getEntity().getBytes())));
-			String output;
-			System.out.println("Request - getById: Status: "
-					+ response.getStatus() + "; Output ->");
-			while ((output = br.readLine()) != null) {
-				System.out.println(output);
+			String temp;
+			String res = "";
+			int status = response.getStatus();
+			System.out.println("Request - getById: Status: " + status
+					+ "; Output ->");
+			while ((temp = br.readLine()) != null) {
+				res += temp;
 			}
-
-			assertTrue(response.getStatus() == 200);
+			System.out.println(res);
+			assertTrue(status == 200);
+			assertEquals(res,
+					"{\"city\":\"Holte\",\"price\":\"1200\",\"timestamp\":1428655187781}");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

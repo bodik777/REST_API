@@ -12,6 +12,10 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
+import org.apache.hadoop.hbase.filter.SubstringComparator;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 
@@ -37,9 +41,21 @@ public class ItemDao {
 	public ArrayList<Item> getAll() {
 		ArrayList<Item> rows = new ArrayList<Item>();
 		try {
+			Filter filterVal1 = new SingleColumnValueFilter(
+					Bytes.toBytes("data"), Bytes.toBytes("Price"),
+					CompareOp.EQUAL, new SubstringComparator("1200"));
+
 			Scan s = new Scan();
+			s.setTimeRange(1429886362865L, 1429886462865L);
+
 			s.addColumn(Bytes.toBytes("data"), Bytes.toBytes("City"));
 			s.addColumn(Bytes.toBytes("data"), Bytes.toBytes("Price"));
+
+			s.setStartRow(Bytes.toBytes("2"));
+			s.setStopRow(Bytes.toBytes("900"));
+
+			s.setFilter(filterVal1);
+
 			ResultScanner scanner = tables.getScanner(s);
 			for (Result rr : scanner) {
 				rows.add(new Item(Bytes.toString(rr.getValue(
@@ -58,6 +74,7 @@ public class ItemDao {
 		Item item = null;
 		try {
 			Get query = new Get(id.getBytes());
+			query.setMaxVersions(3);
 			Result res = tables.get(query);
 			if (!res.isEmpty()) {
 				item = new Item(Bytes.toString(res.getValue(
