@@ -4,15 +4,30 @@ import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.junit.Test;
 
+import com.bodik.model.Item;
+import com.bodik.service.ConnectionToHBase;
+
 @SuppressWarnings("deprecation")
 public class ItemDaoTest {
-	final String ROOT_URL = "http://localhost:8080/REST_API/items/";
+	private final String ROOT_URL = "http://localhost:8080/REST_API/items/";
+	private final String TABLE_NAME = "tableHBaseSales";
 
 	@Test
 	public void testGetAll() {
@@ -42,7 +57,7 @@ public class ItemDaoTest {
 	@Test
 	public void testGetById() {
 		try {
-			ClientRequest request = new ClientRequest(ROOT_URL + "1230774660s");
+			ClientRequest request = new ClientRequest(ROOT_URL + "1");
 			request.accept("application/json");
 			ClientResponse<String> response = request.get(String.class);
 
@@ -58,11 +73,49 @@ public class ItemDaoTest {
 			}
 			System.out.println(res);
 			assertTrue(status == 200);
-			assertEquals(res,
-					"{\"city\":\"Holte\",\"price\":\"1200\",\"timestamp\":1428655187781}");
+			assertEquals(
+					res,
+					"{\"row\":\"1\",\"city\":\"Basildon\",\"price\":\"1200\",\"timestamp\":1429886358462}");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Test
+	public void testPutToTabe() {
+		Item item = new Item("testRow", "testCity", "999999999");
+		Connection connection;
+		Table tables = null;
+		try {
+			connection = ConnectionFactory.createConnection(ConnectionToHBase
+					.getConf());
+			tables = connection.getTable(TableName.valueOf(TABLE_NAME));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Put p = new Put(Bytes.toBytes(item.getRow()));
+		try {
+			p.add(new KeyValue(Bytes.toBytes(item.getRow()), Bytes
+					.toBytes("data"), Bytes.toBytes("City"), Bytes.toBytes(item
+					.getCity())));
+			p.add(new KeyValue(Bytes.toBytes(item.getRow()), Bytes
+					.toBytes("data"), Bytes.toBytes("Price"), Bytes
+					.toBytes(item.getPrice())));
+			tables.put(p);
+			assertTrue("Adding success!", true);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		List<Delete> list = new ArrayList<Delete>();
+		Delete del = new Delete(Bytes.toBytes("testRow"));
+		list.add(del);
+		try {
+			tables.delete(list);
+			assertTrue("Deleting success!", true);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 }

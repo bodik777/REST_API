@@ -106,7 +106,6 @@ public class ItemDao {
 		} catch (IOException e) {
 			Logger.getLogger(ItemDao.class).error("Error adding entry!", e);
 		}
-
 	}
 
 	private Long getMaxTimestamp(Result rr) {
