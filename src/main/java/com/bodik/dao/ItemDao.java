@@ -14,7 +14,6 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
-import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.filter.SubstringComparator;
@@ -64,16 +63,14 @@ public class ItemDao {
 			FilterList flMaster = new FilterList(
 					FilterList.Operator.MUST_PASS_ALL);
 			if (fCity != null) {
-				Filter filterCity = new SingleColumnValueFilter(
-						Bytes.toBytes("data"), Bytes.toBytes("City"),
-						CompareOp.EQUAL, new SubstringComparator(fCity));
-				flMaster.addFilter(filterCity);
+				flMaster.addFilter(new SingleColumnValueFilter(Bytes
+						.toBytes("data"), Bytes.toBytes("City"),
+						CompareOp.EQUAL, new SubstringComparator(fCity)));
 			}
 			if (fPrice != null) {
-				Filter filterPrice = new SingleColumnValueFilter(
-						Bytes.toBytes("data"), Bytes.toBytes("Price"),
-						CompareOp.EQUAL, new SubstringComparator(fPrice));
-				flMaster.addFilter(filterPrice);
+				flMaster.addFilter(new SingleColumnValueFilter(Bytes
+						.toBytes("data"), Bytes.toBytes("Price"),
+						CompareOp.EQUAL, new SubstringComparator(fPrice)));
 			}
 			if (flMaster.hasFilterRow()) {
 				s.setFilter(flMaster);
