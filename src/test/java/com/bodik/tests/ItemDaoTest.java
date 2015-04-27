@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,14 +12,12 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.junit.Test;
 
-import com.bodik.model.Item;
 import com.bodik.service.ConnectionToHBase;
 
 @SuppressWarnings("deprecation")
@@ -58,7 +55,7 @@ public class ItemDaoTest {
 		try {
 			ClientRequest request = new ClientRequest(
 					ROOT_URL
-							+ "?startRow=1&stopRow=999&minStamp=0&maxStamp=1429886358562&fCity=Basildon&fPrice=1200");
+							+ "?startRow=1&stopRow=999&minStamp=0&maxStamp=9223372036854775807&fCity=Basildon&fPrice=1200");
 			request.accept("application/json");
 			ClientResponse<String> response = request.get(String.class);
 
@@ -109,37 +106,33 @@ public class ItemDaoTest {
 
 	@Test
 	public void testPutToTable() {
-		Item item = new Item("testRow", "testCity", "999999999");
-		Connection connection;
-		Table tables = null;
 		try {
-			connection = ConnectionFactory.createConnection(ConnectionToHBase
-					.getConf());
-			tables = connection.getTable(TableName.valueOf(TABLE_NAME));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		Put p = new Put(Bytes.toBytes(item.getRow()));
-		try {
-			p.addImmutable(Bytes.toBytes("data"), Bytes.toBytes("City"),
-					Bytes.toBytes(item.getCity()));
-			p.addImmutable(Bytes.toBytes("data"), Bytes.toBytes("Price"),
-					Bytes.toBytes(item.getPrice()));
-			tables.put(p);
-			assertTrue("Adding success!", true);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		List<Delete> list = new ArrayList<Delete>();
-		Delete del = new Delete(Bytes.toBytes("testRow"));
-		list.add(del);
-		try {
+			ClientRequest request = new ClientRequest(ROOT_URL);
+			request.accept("application/json");
+
+			String input = "{\"row\":\"testRow\",\"city\":\"testCity\",\"price\":\"testPrice\"}";
+			request.body("application/json", input);
+
+			ClientResponse<String> response = request.post(String.class);
+			int status = response.getStatus();
+
+			System.out.println("Request - putToTable: Status: "
+					+ status
+					+ (status == 200 ? "; Request success!"
+							: "; Request failed!"));
+			assertTrue(status == 200);
+
+			Connection connection = ConnectionFactory
+					.createConnection(ConnectionToHBase.getConf());
+			Table tables = connection.getTable(TableName.valueOf(TABLE_NAME));
+			List<Delete> list = new ArrayList<Delete>();
+			Delete del = new Delete(Bytes.toBytes("testRow"));
+			list.add(del);
 			tables.delete(list);
 			assertTrue("Deleting success!", true);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 }
