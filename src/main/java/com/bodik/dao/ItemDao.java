@@ -52,7 +52,7 @@ public class ItemDao {
 			} else if (minStamp == null && maxStamp != null) {
 				s.setTimeRange(0L, maxStamp);
 			} else if (maxStamp == null && minStamp != null) {
-				s.setTimeRange(minStamp, 1429886358562L);
+				s.setTimeRange(minStamp, 9223372036854775807L);
 			}
 			if (startRow != null) {
 				s.setStartRow(Bytes.toBytes(startRow));
