@@ -41,7 +41,7 @@ public class ItemsProduction {
 		if (item.getRow() == null) {
 			return Response.status(400).build();
 		}
-		new ItemDao().putToTabe(item);
+		new ItemDao().putToTable(item);
 		return Response.status(200).build();
 	}
 

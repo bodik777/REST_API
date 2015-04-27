@@ -82,7 +82,7 @@ public class ItemDaoTest {
 	}
 
 	@Test
-	public void testPutToTabe() {
+	public void testPutToTable() {
 		Item item = new Item("testRow", "testCity", "999999999");
 		Connection connection;
 		Table tables = null;

@@ -77,7 +77,6 @@ public class ItemDao {
 		Item item = null;
 		try {
 			Get query = new Get(id.getBytes());
-			query.setMaxVersions(3);
 			Result res = tables.get(query);
 			if (!res.isEmpty()) {
 				item = new Item(Bytes.toString(res.getRow()),
@@ -93,7 +92,7 @@ public class ItemDao {
 		return item;
 	}
 
-	public void putToTabe(Item item) {
+	public void putToTable(Item item) {
 		Put p = new Put(Bytes.toBytes(item.getRow()));
 		try {
 			p.add(new KeyValue(Bytes.toBytes(item.getRow()), Bytes
