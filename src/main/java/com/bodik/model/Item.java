@@ -1,13 +1,25 @@
 package com.bodik.model;
 
 public class Item {
-	String city, price;
-	Long timestamp;
+	private String row;
+	private String city;
+	private String price;
+	private Long timestamp;
 
-	public Item(String city, String price, Long timestamp) {
+	public Item() {
+	}
+
+	public Item(String row, String city, String price, Long timestamp) {
+		this.row = row;
 		this.city = city;
 		this.price = price;
 		this.timestamp = timestamp;
+	}
+
+	public Item(String row, String city, String price) {
+		this.row = row;
+		this.city = city;
+		this.price = price;
 	}
 
 	public String getCity() {
@@ -34,4 +46,11 @@ public class Item {
 		this.timestamp = timestamp;
 	}
 
+	public String getRow() {
+		return row;
+	}
+
+	public void setRow(String row) {
+		this.row = row;
+	}
 }

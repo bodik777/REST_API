@@ -5,9 +5,11 @@ import java.util.ArrayList;
 
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -58,9 +60,10 @@ public class ItemDao {
 
 			ResultScanner scanner = tables.getScanner(s);
 			for (Result rr : scanner) {
-				rows.add(new Item(Bytes.toString(rr.getValue(
-						Bytes.toBytes("data"), Bytes.toBytes("City"))), Bytes
+				rows.add(new Item(Bytes.toString(rr.getRow()), Bytes
 						.toString(rr.getValue(Bytes.toBytes("data"),
+								Bytes.toBytes("City"))),
+						Bytes.toString(rr.getValue(Bytes.toBytes("data"),
 								Bytes.toBytes("Price"))), getMaxTimestamp(rr)));
 			}
 			scanner.close();
@@ -77,15 +80,33 @@ public class ItemDao {
 			query.setMaxVersions(3);
 			Result res = tables.get(query);
 			if (!res.isEmpty()) {
-				item = new Item(Bytes.toString(res.getValue(
-						Bytes.toBytes("data"), Bytes.toBytes("City"))),
+				item = new Item(Bytes.toString(res.getRow()),
 						Bytes.toString(res.getValue(Bytes.toBytes("data"),
-								Bytes.toBytes("Price"))), getMaxTimestamp(res));
+								Bytes.toBytes("City"))), Bytes.toString(res
+								.getValue(Bytes.toBytes("data"),
+										Bytes.toBytes("Price"))),
+						getMaxTimestamp(res));
 			}
 		} catch (IOException e) {
 			Logger.getLogger(ItemDao.class).error("Failed to extract data!", e);
 		}
 		return item;
+	}
+
+	public void putToTabe(Item item) {
+		Put p = new Put(Bytes.toBytes(item.getRow()));
+		try {
+			p.add(new KeyValue(Bytes.toBytes(item.getRow()), Bytes
+					.toBytes("data"), Bytes.toBytes("City"), Bytes.toBytes(item
+					.getCity())));
+			p.add(new KeyValue(Bytes.toBytes(item.getRow()), Bytes
+					.toBytes("data"), Bytes.toBytes("Price"), Bytes
+					.toBytes(item.getPrice())));
+			tables.put(p);
+		} catch (IOException e) {
+			Logger.getLogger(ItemDao.class).error("Error adding entry!", e);
+		}
+
 	}
 
 	private Long getMaxTimestamp(Result rr) {
