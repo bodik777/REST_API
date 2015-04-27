@@ -11,7 +11,7 @@ public class ConnectionToHBase {
 	private static Configuration config;
 
 	static {
-		LoadPropertiesFromFile loader = new LoadPropertiesFromFile();
+		PropertyLoader loader = new PropertyLoader();
 		String ipDB = loader.getIpDB();
 		config = HBaseConfiguration.create();
 		config.set("hbase.zookeeper.quorum", ipDB);

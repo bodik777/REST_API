@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
@@ -16,6 +15,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.filter.SubstringComparator;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -40,23 +40,44 @@ public class ItemDao {
 		}
 	}
 
-	public ArrayList<Item> getAll() {
+	public ArrayList<Item> getAll(String startRow, String stopRow,
+			Long minStamp, Long maxStamp, String fCity, String fPrice) {
 		ArrayList<Item> rows = new ArrayList<Item>();
 		try {
-			Filter filterVal1 = new SingleColumnValueFilter(
-					Bytes.toBytes("data"), Bytes.toBytes("Price"),
-					CompareOp.EQUAL, new SubstringComparator("1200"));
-
 			Scan s = new Scan();
-			s.setTimeRange(1429886362865L, 1429886462865L);
-
 			s.addColumn(Bytes.toBytes("data"), Bytes.toBytes("City"));
 			s.addColumn(Bytes.toBytes("data"), Bytes.toBytes("Price"));
 
-			s.setStartRow(Bytes.toBytes("2"));
-			s.setStopRow(Bytes.toBytes("900"));
-
-			s.setFilter(filterVal1);
+			if (minStamp != null && maxStamp != null) {
+				s.setTimeRange(minStamp, maxStamp);
+			} else if (minStamp == null && maxStamp != null) {
+				s.setTimeRange(0L, maxStamp);
+			} else if (maxStamp == null && minStamp != null) {
+				s.setTimeRange(minStamp, 1429886358562L);
+			}
+			if (startRow != null) {
+				s.setStartRow(Bytes.toBytes(startRow));
+			}
+			if (stopRow != null) {
+				s.setStopRow(Bytes.toBytes(stopRow));
+			}
+			FilterList flMaster = new FilterList(
+					FilterList.Operator.MUST_PASS_ALL);
+			if (fCity != null) {
+				Filter filterCity = new SingleColumnValueFilter(
+						Bytes.toBytes("data"), Bytes.toBytes("City"),
+						CompareOp.EQUAL, new SubstringComparator(fCity));
+				flMaster.addFilter(filterCity);
+			}
+			if (fPrice != null) {
+				Filter filterPrice = new SingleColumnValueFilter(
+						Bytes.toBytes("data"), Bytes.toBytes("Price"),
+						CompareOp.EQUAL, new SubstringComparator(fPrice));
+				flMaster.addFilter(filterPrice);
+			}
+			if (flMaster.hasFilterRow()) {
+				s.setFilter(flMaster);
+			}
 
 			ResultScanner scanner = tables.getScanner(s);
 			for (Result rr : scanner) {
@@ -95,12 +116,10 @@ public class ItemDao {
 	public void putToTable(Item item) {
 		Put p = new Put(Bytes.toBytes(item.getRow()));
 		try {
-			p.add(new KeyValue(Bytes.toBytes(item.getRow()), Bytes
-					.toBytes("data"), Bytes.toBytes("City"), Bytes.toBytes(item
-					.getCity())));
-			p.add(new KeyValue(Bytes.toBytes(item.getRow()), Bytes
-					.toBytes("data"), Bytes.toBytes("Price"), Bytes
-					.toBytes(item.getPrice())));
+			p.addImmutable(Bytes.toBytes("data"), Bytes.toBytes("City"),
+					Bytes.toBytes(item.getCity()));
+			p.addImmutable(Bytes.toBytes("data"), Bytes.toBytes("Price"),
+					Bytes.toBytes(item.getPrice()));
 			tables.put(p);
 		} catch (IOException e) {
 			Logger.getLogger(ItemDao.class).error("Error adding entry!", e);

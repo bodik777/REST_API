@@ -8,6 +8,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -19,8 +20,14 @@ public class ItemsProduction {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public ArrayList<Item> items() {
-		return new ItemDao().getAll();
+	public ArrayList<Item> items(@QueryParam("startRow") String startRow,
+			@QueryParam("stopRow") String stopRow,
+			@QueryParam("minStamp") Long minStamp,
+			@QueryParam("maxStamp") Long maxStamp,
+			@QueryParam("fCity") String fCity,
+			@QueryParam("fPrice") String fPrice) {
+		return new ItemDao().getAll(startRow, stopRow, minStamp, maxStamp,
+				fCity, fPrice);
 	}
 
 	@GET

@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
@@ -26,7 +25,7 @@ import com.bodik.service.ConnectionToHBase;
 
 @SuppressWarnings("deprecation")
 public class ItemDaoTest {
-	private final String ROOT_URL = "http://localhost:8080/REST_API/items/";
+	private final String ROOT_URL = "http://localhost:8080/REST_API/items";
 	private final String TABLE_NAME = "tableHBaseSales";
 
 	@Test
@@ -40,7 +39,34 @@ public class ItemDaoTest {
 					new ByteArrayInputStream(response.getEntity().getBytes())));
 			String temp;
 			String res = "";
-			System.out.println("Request - getById: Status: "
+			System.out.println("Request - getAll: Status: "
+					+ response.getStatus() + "; Output ->");
+			while ((temp = br.readLine()) != null) {
+				res += temp;
+			}
+			System.out.println(res);
+
+			assertTrue(response.getStatus() == 200);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	@Test
+	public void testGetAllParams() {
+		try {
+			ClientRequest request = new ClientRequest(
+					ROOT_URL
+							+ "?startRow=1&stopRow=999&minStamp=0&maxStamp=1429886358562&fCity=Basildon&fPrice=1200");
+			request.accept("application/json");
+			ClientResponse<String> response = request.get(String.class);
+
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+					new ByteArrayInputStream(response.getEntity().getBytes())));
+			String temp;
+			String res = "";
+			System.out.println("Request - getAllParams: Status: "
 					+ response.getStatus() + "; Output ->");
 			while ((temp = br.readLine()) != null) {
 				res += temp;
@@ -57,7 +83,7 @@ public class ItemDaoTest {
 	@Test
 	public void testGetById() {
 		try {
-			ClientRequest request = new ClientRequest(ROOT_URL + "1");
+			ClientRequest request = new ClientRequest(ROOT_URL + "/1");
 			request.accept("application/json");
 			ClientResponse<String> response = request.get(String.class);
 
@@ -95,12 +121,10 @@ public class ItemDaoTest {
 		}
 		Put p = new Put(Bytes.toBytes(item.getRow()));
 		try {
-			p.add(new KeyValue(Bytes.toBytes(item.getRow()), Bytes
-					.toBytes("data"), Bytes.toBytes("City"), Bytes.toBytes(item
-					.getCity())));
-			p.add(new KeyValue(Bytes.toBytes(item.getRow()), Bytes
-					.toBytes("data"), Bytes.toBytes("Price"), Bytes
-					.toBytes(item.getPrice())));
+			p.addImmutable(Bytes.toBytes("data"), Bytes.toBytes("City"),
+					Bytes.toBytes(item.getCity()));
+			p.addImmutable(Bytes.toBytes("data"), Bytes.toBytes("Price"),
+					Bytes.toBytes(item.getPrice()));
 			tables.put(p);
 			assertTrue("Adding success!", true);
 		} catch (IOException e) {

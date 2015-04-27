@@ -7,11 +7,11 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-public class LoadPropertiesFromFile {
+public class PropertyLoader {
 	private String ipDB = null;
 	private String portDB = null;
 
-	public LoadPropertiesFromFile() {
+	public PropertyLoader() {
 		Properties props = new Properties();
 		try {
 			File file = new File("D:/config.ini");
