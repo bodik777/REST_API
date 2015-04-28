@@ -1,22 +1,22 @@
 package com.bodik.model;
 
-public class Item {
+public class ItemSales {
 	private String row;
 	private String city;
 	private String price;
 	private Long timestamp;
 
-	public Item() {
+	public ItemSales() {
 	}
 
-	public Item(String row, String city, String price, Long timestamp) {
+	public ItemSales(String row, String city, String price, Long timestamp) {
 		this.row = row;
 		this.city = city;
 		this.price = price;
 		this.timestamp = timestamp;
 	}
 
-	public Item(String row, String city, String price) {
+	public ItemSales(String row, String city, String price) {
 		this.row = row;
 		this.city = city;
 		this.price = price;

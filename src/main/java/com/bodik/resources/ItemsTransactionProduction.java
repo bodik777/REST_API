@@ -12,29 +12,29 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.bodik.dao.ItemDao;
-import com.bodik.model.Item;
+import com.bodik.dao.ItemSalesDao;
+import com.bodik.model.ItemTransaction;
 
-@Path("items")
-public class ItemsProduction {
-
+@Path("itemsTransactions")
+public class ItemsTransactionProduction {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public ArrayList<Item> items(@QueryParam("startRow") String startRow,
+	public ArrayList<ItemTransaction> getAll(
+			@QueryParam("startRow") String startRow,
 			@QueryParam("stopRow") String stopRow,
 			@QueryParam("minStamp") Long minStamp,
 			@QueryParam("maxStamp") Long maxStamp,
-			@QueryParam("fCity") String fCity,
-			@QueryParam("fPrice") String fPrice) {
-		return new ItemDao().getAll(startRow, stopRow, minStamp, maxStamp,
-				fCity, fPrice);
+			@QueryParam("fCountry") String fCountry,
+			@QueryParam("fProduct") String fProduct) {
+		return new ItemSalesDao().getAll(startRow, stopRow, minStamp, maxStamp,
+				fCountry, fProduct);
 	}
 
 	@GET
 	@Path("{id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Object item(@PathParam("id") String id) {
-		Item item = new ItemDao().getById(id);
+	public Object getById(@PathParam("id") String id) {
+		ItemTransaction item = new ItemSalesDao().getById(id);
 		if (item == null) {
 			return Response.status(404).build();
 		}
@@ -44,11 +44,11 @@ public class ItemsProduction {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createRow(Item item) {
+	public Response createRow(ItemTransaction item) {
 		if (item.getRow() == null) {
 			return Response.status(400).build();
 		}
-		new ItemDao().putToTable(item);
+		new ItemSalesDao().putToTable(item);
 		return Response.status(200).build();
 	}
 

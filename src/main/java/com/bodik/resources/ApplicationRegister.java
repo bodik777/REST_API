@@ -11,7 +11,8 @@ public class ApplicationRegister extends Application {
 
 	public ApplicationRegister() {
 		// ADD YOUR RESTFUL RESOURCES HERE
-		this.singletons.add(new ItemsProduction());
+		this.singletons.add(new ItemsSalesProduction());
+		this.singletons.add(new ItemsTransactionProduction());
 	}
 
 	public Set<Class<?>> getClasses() {

@@ -1,4 +1,4 @@
-package com.bodik.tests;
+package com.bodik.resources;
 
 import static org.junit.Assert.*;
 
@@ -21,22 +21,21 @@ import org.junit.Test;
 import com.bodik.service.HBaseConnection;
 
 @SuppressWarnings("deprecation")
-public class ItemDaoTest {
-	private final String ROOT_URL = "http://localhost:8080/REST_API/items";
+public class ItemsTransactionProductionTest {
+	private final String ROOT_URL = "http://localhost:8080/REST_API/itemsTransactions";
 	private final String TABLE_NAME = "tableHBaseSales";
 
 	@Test
-	public void testGetAll() {
+	public final void testGetAll() {
 		try {
 			ClientRequest request = new ClientRequest(ROOT_URL);
-			request.accept("application/json");
 			ClientResponse<String> response = request.get(String.class);
 
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					new ByteArrayInputStream(response.getEntity().getBytes())));
 			String temp;
 			String res = "";
-			System.out.println("Request - getAll: Status: "
+			System.out.println("Request Transactions - getAll: Status: "
 					+ response.getStatus() + "; Output ->");
 			while ((temp = br.readLine()) != null) {
 				res += temp;
@@ -47,7 +46,6 @@ public class ItemDaoTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	@Test
@@ -55,15 +53,14 @@ public class ItemDaoTest {
 		try {
 			ClientRequest request = new ClientRequest(
 					ROOT_URL
-							+ "?startRow=1&stopRow=999&minStamp=0&maxStamp=9223372036854775807&fCity=Basildon&fPrice=1200");
-			request.accept("application/json");
+							+ "?startRow=1&stopRow=999&minStamp=0&maxStamp=9223372036854775807&fCountry=United Kingdom&fProduct=Product1");
 			ClientResponse<String> response = request.get(String.class);
 
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					new ByteArrayInputStream(response.getEntity().getBytes())));
 			String temp;
 			String res = "";
-			System.out.println("Request - getAllParams: Status: "
+			System.out.println("Request Transactions - getAllParams: Status: "
 					+ response.getStatus() + "; Output ->");
 			while ((temp = br.readLine()) != null) {
 				res += temp;
@@ -74,14 +71,12 @@ public class ItemDaoTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	@Test
-	public void testGetById() {
+	public final void testGetById() {
 		try {
 			ClientRequest request = new ClientRequest(ROOT_URL + "/1");
-			request.accept("application/json");
 			ClientResponse<String> response = request.get(String.class);
 
 			BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -89,8 +84,8 @@ public class ItemDaoTest {
 			String temp;
 			String res = "";
 			int status = response.getStatus();
-			System.out.println("Request - getById: Status: " + status
-					+ "; Output ->");
+			System.out.println("Request Transactions - getById: Status: "
+					+ status + "; Output ->");
 			while ((temp = br.readLine()) != null) {
 				res += temp;
 			}
@@ -98,25 +93,24 @@ public class ItemDaoTest {
 			assertTrue(status == 200);
 			assertEquals(
 					res,
-					"{\"row\":\"1\",\"city\":\"Basildon\",\"price\":\"1200\",\"timestamp\":1429886358462}");
+					"{\"row\":\"1\",\"country\":\"United Kingdom\",\"product\":\"Product1\",\"timestamp\":1429886358462}");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Test
-	public void testPutToTable() {
+	public final void testCreateRow() {
 		try {
 			ClientRequest request = new ClientRequest(ROOT_URL);
 			request.accept("application/json");
-
-			String input = "{\"row\":\"testRow\",\"city\":\"testCity\",\"price\":\"testPrice\"}";
+			String input = "{\"row\":\"testRow\",\"country\":\"testCountry\",\"product\":\"testProduct\"}";
 			request.body("application/json", input);
 
 			ClientResponse<String> response = request.post(String.class);
 			int status = response.getStatus();
 
-			System.out.println("Request - putToTable: Status: "
+			System.out.println("Request Transactions - putToTable: Status: "
 					+ status
 					+ (status == 200 ? "; Request success!"
 							: "; Request failed!"));
