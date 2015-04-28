@@ -21,7 +21,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 
 import com.bodik.model.Item;
-import com.bodik.service.ConnectionToHBase;
+import com.bodik.service.HBaseConnection;
 
 public class ItemDao {
 
@@ -31,7 +31,7 @@ public class ItemDao {
 	public ItemDao() {
 		try {
 			Connection connection = ConnectionFactory
-					.createConnection(ConnectionToHBase.getConf());
+					.createConnection(HBaseConnection.getConf());
 			tables = connection.getTable(TableName.valueOf(TABLE_NAME));
 		} catch (IOException e) {
 			Logger.getLogger(ItemDao.class).error(

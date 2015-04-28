@@ -6,7 +6,7 @@ import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.log4j.Logger;
 
-public class ConnectionToHBase {
+public class HBaseConnection {
 
 	private static Configuration config;
 
@@ -22,10 +22,10 @@ public class ConnectionToHBase {
 		try {
 			HBaseAdmin.checkHBaseAvailable(config);
 		} catch (MasterNotRunningException e) {
-			Logger.getLogger(ConnectionToHBase.class).error(
+			Logger.getLogger(HBaseConnection.class).error(
 					"HBase is not running!", e);
 		} catch (Exception e) {
-			Logger.getLogger(ConnectionToHBase.class).error(
+			Logger.getLogger(HBaseConnection.class).error(
 					"Could not connect to the table!", e);
 		}
 	}

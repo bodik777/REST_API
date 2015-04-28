@@ -19,7 +19,7 @@ public class PropertyLoader {
 			this.ipDB = props.getProperty("ipDB", "localhost");
 			this.portDB = props.getProperty("portDB", "2181");
 		} catch (IOException e) {
-			Logger.getLogger(ConnectionToHBase.class).error(
+			Logger.getLogger(HBaseConnection.class).error(
 					"Failed to load configuration file!", e);
 		}
 	}

@@ -18,7 +18,7 @@ import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.junit.Test;
 
-import com.bodik.service.ConnectionToHBase;
+import com.bodik.service.HBaseConnection;
 
 @SuppressWarnings("deprecation")
 public class ItemDaoTest {
@@ -123,7 +123,7 @@ public class ItemDaoTest {
 			assertTrue(status == 200);
 
 			Connection connection = ConnectionFactory
-					.createConnection(ConnectionToHBase.getConf());
+					.createConnection(HBaseConnection.getConf());
 			Table tables = connection.getTable(TableName.valueOf(TABLE_NAME));
 			List<Delete> list = new ArrayList<Delete>();
 			Delete del = new Delete(Bytes.toBytes("testRow"));
