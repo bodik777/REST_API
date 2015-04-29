@@ -61,7 +61,7 @@ public class DAO {
 		FilterList flMaster = new FilterList(FilterList.Operator.MUST_PASS_ALL);
 		for (Entry<String, String> entry : data.entrySet()) {
 			String value = entry.getValue();
-			if (value != null) {
+			if (value != "") {
 				flMaster.addFilter(new SingleColumnValueFilter(Bytes
 						.toBytes("data"), Bytes.toBytes(entry.getKey()),
 						CompareOp.EQUAL, new SubstringComparator(value)));
