@@ -12,7 +12,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.bodik.dao.ItemTransactionDao;
+import com.bodik.dao.ItemSalesDao;
 import com.bodik.model.ItemSales;
 
 @Path("itemsSales")
@@ -26,7 +26,7 @@ public class ItemsSalesProduction {
 			@QueryParam("maxStamp") Long maxStamp,
 			@QueryParam("fCity") String fCity,
 			@QueryParam("fPrice") String fPrice) {
-		return new ItemTransactionDao().getAll(startRow, stopRow, minStamp, maxStamp,
+		return new ItemSalesDao().getAll(startRow, stopRow, minStamp, maxStamp,
 				fCity, fPrice);
 	}
 
@@ -34,7 +34,7 @@ public class ItemsSalesProduction {
 	@Path("{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Object getById(@PathParam("id") String id) {
-		ItemSales item = new ItemTransactionDao().getById(id);
+		ItemSales item = new ItemSalesDao().getById(id);
 		if (item == null) {
 			return Response.status(404).build();
 		}
@@ -48,7 +48,7 @@ public class ItemsSalesProduction {
 		if (item.getRow() == null) {
 			return Response.status(400).build();
 		}
-		new ItemTransactionDao().putToTable(item);
+		new ItemSalesDao().putToTable(item);
 		return Response.status(200).build();
 	}
 

@@ -9,47 +9,47 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.filter.SubstringComparator;
+import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 
-import com.bodik.model.ItemSales;
+import com.bodik.model.ItemTransaction;
 
-public class ItemTransactionDao extends DAO {
+public class ItemTransactionsDao extends DAO {
 	private final String TABLE_NAME = "tableHBaseSales";
 
-	public ItemTransactionDao() {
+	public ItemTransactionsDao() {
 		super();
 		try {
 			tables = super.connection.getTable(TableName.valueOf(TABLE_NAME));
 		} catch (IOException e) {
-			Logger.getLogger(ItemTransactionDao.class).error(
+			Logger.getLogger(ItemSalesDao.class).error(
 					"Could not connect to the table!", e);
 		}
 	}
 
-	public ArrayList<ItemSales> getAll(String startRow, String stopRow,
-			Long minStamp, Long maxStamp, String fCity, String fPrice) {
-		ArrayList<ItemSales> rows = new ArrayList<ItemSales>();
+	public ArrayList<ItemTransaction> getAll(String startRow, String stopRow,
+			Long minStamp, Long maxStamp, String fCountry, String fProduct) {
+		ArrayList<ItemTransaction> rows = new ArrayList<ItemTransaction>();
 		try {
 			Scan s = getScaner(startRow, stopRow, minStamp, maxStamp);
-			s.addColumn(Bytes.toBytes("data"), Bytes.toBytes("City"));
-			s.addColumn(Bytes.toBytes("data"), Bytes.toBytes("Price"));
+			s.addColumn(Bytes.toBytes("data"), Bytes.toBytes("Country"));
+			s.addColumn(Bytes.toBytes("data"), Bytes.toBytes("Product"));
 
 			FilterList flMaster = new FilterList(
 					FilterList.Operator.MUST_PASS_ALL);
-			if (fCity != null) {
+			if (fCountry != null) {
 				flMaster.addFilter(new SingleColumnValueFilter(Bytes
-						.toBytes("data"), Bytes.toBytes("City"),
-						CompareOp.EQUAL, new SubstringComparator(fCity)));
+						.toBytes("data"), Bytes.toBytes("Country"),
+						CompareOp.EQUAL, new SubstringComparator(fCountry)));
 			}
-			if (fPrice != null) {
+			if (fProduct != null) {
 				flMaster.addFilter(new SingleColumnValueFilter(Bytes
-						.toBytes("data"), Bytes.toBytes("Price"),
-						CompareOp.EQUAL, new SubstringComparator(fPrice)));
+						.toBytes("data"), Bytes.toBytes("Product"),
+						CompareOp.EQUAL, new SubstringComparator(fProduct)));
 			}
 			if (flMaster.hasFilterRow()) {
 				s.setFilter(flMaster);
@@ -57,50 +57,50 @@ public class ItemTransactionDao extends DAO {
 
 			ResultScanner scanner = tables.getScanner(s);
 			for (Result rr : scanner) {
-				rows.add(new ItemSales(Bytes.toString(rr.getRow()), Bytes
+				rows.add(new ItemTransaction(Bytes.toString(rr.getRow()), Bytes
 						.toString(rr.getValue(Bytes.toBytes("data"),
-								Bytes.toBytes("City"))),
-						Bytes.toString(rr.getValue(Bytes.toBytes("data"),
-								Bytes.toBytes("Price"))), getMaxTimestamp(rr)));
+								Bytes.toBytes("Country"))), Bytes.toString(rr
+						.getValue(Bytes.toBytes("data"),
+								Bytes.toBytes("Product"))), getMaxTimestamp(rr)));
 			}
 			scanner.close();
 		} catch (IOException e) {
-			Logger.getLogger(ItemTransactionDao.class).error(
+			Logger.getLogger(ItemSalesDao.class).error(
 					"Failed to extract data!", e);
 		}
 		return rows;
 	}
 
-	public ItemSales getById(String id) {
-		ItemSales item = null;
+	public ItemTransaction getById(String id) {
+		ItemTransaction item = null;
 		try {
 			Get query = new Get(id.getBytes());
 			Result res = tables.get(query);
 			if (!res.isEmpty()) {
-				item = new ItemSales(Bytes.toString(res.getRow()),
+				item = new ItemTransaction(Bytes.toString(res.getRow()),
 						Bytes.toString(res.getValue(Bytes.toBytes("data"),
-								Bytes.toBytes("City"))), Bytes.toString(res
+								Bytes.toBytes("Country"))), Bytes.toString(res
 								.getValue(Bytes.toBytes("data"),
-										Bytes.toBytes("Price"))),
+										Bytes.toBytes("Product"))),
 						getMaxTimestamp(res));
 			}
 		} catch (IOException e) {
-			Logger.getLogger(ItemTransactionDao.class).error(
+			Logger.getLogger(ItemSalesDao.class).error(
 					"Failed to extract data!", e);
 		}
 		return item;
 	}
 
-	public void putToTable(ItemSales item) {
+	public void putToTable(ItemTransaction item) {
 		Put p = new Put(Bytes.toBytes(item.getRow()));
 		try {
-			p.addImmutable(Bytes.toBytes("data"), Bytes.toBytes("City"),
-					Bytes.toBytes(item.getCity()));
-			p.addImmutable(Bytes.toBytes("data"), Bytes.toBytes("Price"),
-					Bytes.toBytes(item.getPrice()));
+			p.addImmutable(Bytes.toBytes("data"), Bytes.toBytes("Country"),
+					Bytes.toBytes(item.getCountry()));
+			p.addImmutable(Bytes.toBytes("data"), Bytes.toBytes("Product"),
+					Bytes.toBytes(item.getProduct()));
 			tables.put(p);
 		} catch (IOException e) {
-			Logger.getLogger(ItemTransactionDao.class).error(
+			Logger.getLogger(ItemSalesDao.class).error(
 					"Error adding entry!", e);
 		}
 	}

@@ -22,7 +22,7 @@ public class DAO {
 			connection = ConnectionFactory.createConnection(HBaseConnection
 					.getConf());
 		} catch (IOException e) {
-			Logger.getLogger(ItemTransactionDao.class).error(
+			Logger.getLogger(ItemSalesDao.class).error(
 					"Could not connect to the table!", e);
 		}
 	}
@@ -46,7 +46,7 @@ public class DAO {
 				s.setStopRow(Bytes.toBytes(stopRow));
 			}
 		} catch (IOException e) {
-			Logger.getLogger(ItemTransactionDao.class).error("Failed to extract data!", e);
+			Logger.getLogger(ItemSalesDao.class).error("Failed to extract data!", e);
 		}
 		return s;
 	}
