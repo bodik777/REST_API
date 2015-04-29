@@ -1,6 +1,8 @@
 package com.bodik.dao;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Connection;
@@ -8,6 +10,10 @@ import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
+import org.apache.hadoop.hbase.filter.SubstringComparator;
+import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 
@@ -49,6 +55,19 @@ public class DAO {
 			Logger.getLogger(DAO.class).error("Failed to extract data!", e);
 		}
 		return s;
+	}
+
+	protected FilterList getFilter(HashMap<String, String> data) {
+		FilterList flMaster = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+		for (Entry<String, String> entry : data.entrySet()) {
+			String value = entry.getValue();
+			if (value != null) {
+				flMaster.addFilter(new SingleColumnValueFilter(Bytes
+						.toBytes("data"), Bytes.toBytes(entry.getKey()),
+						CompareOp.EQUAL, new SubstringComparator(value)));
+			}
+		}
+		return flMaster;
 	}
 
 	protected Long getMaxTimestamp(Result rr) {

@@ -2,6 +2,7 @@ package com.bodik.dao;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
@@ -10,9 +11,6 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.FilterList;
-import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
-import org.apache.hadoop.hbase.filter.SubstringComparator;
-import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 
@@ -39,18 +37,10 @@ public class ItemTransactionsDao extends DAO {
 			s.addColumn(Bytes.toBytes("data"), Bytes.toBytes("Country"));
 			s.addColumn(Bytes.toBytes("data"), Bytes.toBytes("Product"));
 
-			FilterList flMaster = new FilterList(
-					FilterList.Operator.MUST_PASS_ALL);
-			if (fCountry != null) {
-				flMaster.addFilter(new SingleColumnValueFilter(Bytes
-						.toBytes("data"), Bytes.toBytes("Country"),
-						CompareOp.EQUAL, new SubstringComparator(fCountry)));
-			}
-			if (fProduct != null) {
-				flMaster.addFilter(new SingleColumnValueFilter(Bytes
-						.toBytes("data"), Bytes.toBytes("Product"),
-						CompareOp.EQUAL, new SubstringComparator(fProduct)));
-			}
+			HashMap<String, String> filters = new HashMap<String, String>();
+			filters.put("Country", fCountry);
+			filters.put("Product", fProduct);
+			FilterList flMaster = getFilter(filters);
 			if (flMaster.hasFilterRow()) {
 				s.setFilter(flMaster);
 			}

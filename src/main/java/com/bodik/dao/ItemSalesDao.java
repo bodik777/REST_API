@@ -2,6 +2,7 @@ package com.bodik.dao;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
@@ -9,10 +10,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.FilterList;
-import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
-import org.apache.hadoop.hbase.filter.SubstringComparator;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 
@@ -39,18 +37,10 @@ public class ItemSalesDao extends DAO {
 			s.addColumn(Bytes.toBytes("data"), Bytes.toBytes("City"));
 			s.addColumn(Bytes.toBytes("data"), Bytes.toBytes("Price"));
 
-			FilterList flMaster = new FilterList(
-					FilterList.Operator.MUST_PASS_ALL);
-			if (fCity != null) {
-				flMaster.addFilter(new SingleColumnValueFilter(Bytes
-						.toBytes("data"), Bytes.toBytes("City"),
-						CompareOp.EQUAL, new SubstringComparator(fCity)));
-			}
-			if (fPrice != null) {
-				flMaster.addFilter(new SingleColumnValueFilter(Bytes
-						.toBytes("data"), Bytes.toBytes("Price"),
-						CompareOp.EQUAL, new SubstringComparator(fPrice)));
-			}
+			HashMap<String, String> filters = new HashMap<String, String>();
+			filters.put("City", fCity);
+			filters.put("Price", fPrice);
+			FilterList flMaster = getFilter(filters);
 			if (flMaster.hasFilterRow()) {
 				s.setFilter(flMaster);
 			}
@@ -100,8 +90,8 @@ public class ItemSalesDao extends DAO {
 					Bytes.toBytes(item.getPrice()));
 			tables.put(p);
 		} catch (IOException e) {
-			Logger.getLogger(ItemSalesDao.class).error(
-					"Error adding entry!", e);
+			Logger.getLogger(ItemSalesDao.class)
+					.error("Error adding entry!", e);
 		}
 	}
 
