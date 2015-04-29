@@ -22,14 +22,14 @@ public class DAO {
 			connection = ConnectionFactory.createConnection(HBaseConnection
 					.getConf());
 		} catch (IOException e) {
-			Logger.getLogger(ItemSalesDao.class).error(
+			Logger.getLogger(DAO.class).error(
 					"Could not connect to the table!", e);
 		}
 	}
 
-	protected Scan getScaner(String startRow,
-			String stopRow, Long minStamp, Long maxStamp) {
-		Scan s= null;
+	protected Scan getScaner(String startRow, String stopRow, Long minStamp,
+			Long maxStamp) {
+		Scan s = null;
 		try {
 			s = new Scan();
 			if (minStamp != null && maxStamp != null) {
@@ -46,11 +46,11 @@ public class DAO {
 				s.setStopRow(Bytes.toBytes(stopRow));
 			}
 		} catch (IOException e) {
-			Logger.getLogger(ItemSalesDao.class).error("Failed to extract data!", e);
+			Logger.getLogger(DAO.class).error("Failed to extract data!", e);
 		}
 		return s;
 	}
-	
+
 	protected Long getMaxTimestamp(Result rr) {
 		Long times = 0L;
 		for (Cell cell : rr.rawCells()) {

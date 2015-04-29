@@ -26,7 +26,7 @@ public class ItemTransactionsDao extends DAO {
 		try {
 			tables = super.connection.getTable(TableName.valueOf(TABLE_NAME));
 		} catch (IOException e) {
-			Logger.getLogger(ItemSalesDao.class).error(
+			Logger.getLogger(ItemTransactionsDao.class).error(
 					"Could not connect to the table!", e);
 		}
 	}
@@ -65,7 +65,7 @@ public class ItemTransactionsDao extends DAO {
 			}
 			scanner.close();
 		} catch (IOException e) {
-			Logger.getLogger(ItemSalesDao.class).error(
+			Logger.getLogger(ItemTransactionsDao.class).error(
 					"Failed to extract data!", e);
 		}
 		return rows;
@@ -85,7 +85,7 @@ public class ItemTransactionsDao extends DAO {
 						getMaxTimestamp(res));
 			}
 		} catch (IOException e) {
-			Logger.getLogger(ItemSalesDao.class).error(
+			Logger.getLogger(ItemTransactionsDao.class).error(
 					"Failed to extract data!", e);
 		}
 		return item;
@@ -100,7 +100,7 @@ public class ItemTransactionsDao extends DAO {
 					Bytes.toBytes(item.getProduct()));
 			tables.put(p);
 		} catch (IOException e) {
-			Logger.getLogger(ItemSalesDao.class).error(
+			Logger.getLogger(ItemTransactionsDao.class).error(
 					"Error adding entry!", e);
 		}
 	}
