@@ -3,7 +3,6 @@ package com.bodik.resources;
 import java.util.ArrayList;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -25,8 +24,8 @@ public class ItemsSalesProduction {
 			@QueryParam("stopRow") String stopRow,
 			@QueryParam("minStamp") Long minStamp,
 			@QueryParam("maxStamp") Long maxStamp,
-			@DefaultValue("") @QueryParam("fCity") String fCity,
-			@DefaultValue("") @QueryParam("fPrice") String fPrice) {
+			@QueryParam("fCity") String fCity,
+			@QueryParam("fPrice") String fPrice) {
 		return new ItemSalesDao().getAll(startRow, stopRow, minStamp, maxStamp,
 				fCity, fPrice);
 	}

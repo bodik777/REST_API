@@ -2,7 +2,6 @@ package com.bodik.dao;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
@@ -18,6 +17,7 @@ import com.bodik.model.ItemTransaction;
 
 public class ItemTransactionsDao extends DAO {
 	private final String TABLE_NAME = "tableHBaseSales";
+	private final String COLUMN_FAMILY = "data";
 
 	public ItemTransactionsDao() {
 		super();
@@ -34,13 +34,16 @@ public class ItemTransactionsDao extends DAO {
 		ArrayList<ItemTransaction> rows = new ArrayList<ItemTransaction>();
 		try {
 			Scan s = getScaner(startRow, stopRow, minStamp, maxStamp);
-			s.addColumn(Bytes.toBytes("data"), Bytes.toBytes("Country"));
-			s.addColumn(Bytes.toBytes("data"), Bytes.toBytes("Product"));
+			s.addColumn(Bytes.toBytes(COLUMN_FAMILY), Bytes.toBytes("Country"));
+			s.addColumn(Bytes.toBytes(COLUMN_FAMILY), Bytes.toBytes("Product"));
 
-			HashMap<String, String> filters = new HashMap<String, String>();
-			filters.put("Country", fCountry);
-			filters.put("Product", fProduct);
-			FilterList flMaster = getFilter(filters);
+			ArrayList<String> colList = new ArrayList<String>();
+			ArrayList<String> valList = new ArrayList<String>();
+			colList.add("Country");
+			valList.add(fCountry);
+			colList.add("Product");
+			valList.add(fProduct);
+			FilterList flMaster = getFilter(COLUMN_FAMILY, colList, valList);
 			if (flMaster.hasFilterRow()) {
 				s.setFilter(flMaster);
 			}
@@ -48,9 +51,9 @@ public class ItemTransactionsDao extends DAO {
 			ResultScanner scanner = tables.getScanner(s);
 			for (Result rr : scanner) {
 				rows.add(new ItemTransaction(Bytes.toString(rr.getRow()), Bytes
-						.toString(rr.getValue(Bytes.toBytes("data"),
+						.toString(rr.getValue(Bytes.toBytes(COLUMN_FAMILY),
 								Bytes.toBytes("Country"))), Bytes.toString(rr
-						.getValue(Bytes.toBytes("data"),
+						.getValue(Bytes.toBytes(COLUMN_FAMILY),
 								Bytes.toBytes("Product"))), getMaxTimestamp(rr)));
 			}
 			scanner.close();
@@ -68,9 +71,10 @@ public class ItemTransactionsDao extends DAO {
 			Result res = tables.get(query);
 			if (!res.isEmpty()) {
 				item = new ItemTransaction(Bytes.toString(res.getRow()),
-						Bytes.toString(res.getValue(Bytes.toBytes("data"),
+						Bytes.toString(res.getValue(
+								Bytes.toBytes(COLUMN_FAMILY),
 								Bytes.toBytes("Country"))), Bytes.toString(res
-								.getValue(Bytes.toBytes("data"),
+								.getValue(Bytes.toBytes(COLUMN_FAMILY),
 										Bytes.toBytes("Product"))),
 						getMaxTimestamp(res));
 			}
@@ -84,10 +88,10 @@ public class ItemTransactionsDao extends DAO {
 	public void putToTable(ItemTransaction item) {
 		Put p = new Put(Bytes.toBytes(item.getRow()));
 		try {
-			p.addImmutable(Bytes.toBytes("data"), Bytes.toBytes("Country"),
-					Bytes.toBytes(item.getCountry()));
-			p.addImmutable(Bytes.toBytes("data"), Bytes.toBytes("Product"),
-					Bytes.toBytes(item.getProduct()));
+			p.addImmutable(Bytes.toBytes(COLUMN_FAMILY),
+					Bytes.toBytes("Country"), Bytes.toBytes(item.getCountry()));
+			p.addImmutable(Bytes.toBytes(COLUMN_FAMILY),
+					Bytes.toBytes("Product"), Bytes.toBytes(item.getProduct()));
 			tables.put(p);
 		} catch (IOException e) {
 			Logger.getLogger(ItemTransactionsDao.class).error(
